@@ -1,0 +1,5 @@
+# Environment Variables
+# Generated on 7/30/2026
+
+# API
+GOOGLE_MAPS_API_KEY=AIzaSyChoKeO5RSEy5Nwa5Uhl53B65oHlvzqaoY
