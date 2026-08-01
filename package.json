@@ -8,7 +8,7 @@
   "build": "vite build",
   "preview": "vite preview",
   "lint": "eslint ."
-}
+},
   "dependencies": {
     "@react-google-maps/api": "^2.20.6",
     "jszip": "^3.10.1",
