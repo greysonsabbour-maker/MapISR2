@@ -33,7 +33,7 @@ export function DashboardPage() {
       computeDashboardStats(
         trains,
         locomotives,
-        history,
+        trains,
         locations.yards.map((name) => ({
           capacity: 50,
           currentOccupancy: locomotives.filter(
