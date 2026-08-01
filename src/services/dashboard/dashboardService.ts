@@ -1,11 +1,16 @@
-import type { Train, Locomotive, Schedule, MapFeature, SearchResult } from '@/types';
+import type {
+  Train,
+  Locomotive,
+  Schedule,
+  MapFeature,
+  SearchResult,
+} from '@/types';
 import { formatLocomotiveDisplay } from '@/services/locomotive/locomotiveService';
-import { isToday } from '@/utils';
 
 export function computeDashboardStats(
   trains: Train[],
   locomotives: Locomotive[],
-  history: Train[],
+  _history: unknown[],
   yards: { currentOccupancy: number; capacity: number }[],
 ): {
   activeTrains: number;
@@ -17,6 +22,7 @@ export function computeDashboardStats(
   totalLocomotives: number;
 } {
   const now = new Date();
+
   const activeTrains = trains.filter(
     (t) => t.status !== 'Completed' && t.status !== 'Cancelled',
   );
@@ -27,7 +33,9 @@ export function computeDashboardStats(
     return dep > now && dep.getTime() - now.getTime() < 3600000;
   }).length;
 
-  const completedToday = history.filter((t) => isToday(t.completedAt)).length;
+  const completedToday = trains.filter(
+    (t) => t.status === 'Completed',
+  ).length;
 
   const availableLocomotives = locomotives.filter(
     (l) => l.status === 'Available',
@@ -38,8 +46,15 @@ export function computeDashboardStats(
   ).length;
 
   const totalCapacity = yards.reduce((sum, y) => sum + y.capacity, 0);
-  const totalOccupancy = yards.reduce((sum, y) => sum + y.currentOccupancy, 0);
-  const yardOccupancy = totalCapacity > 0 ? (totalOccupancy / totalCapacity) * 100 : 0;
+  const totalOccupancy = yards.reduce(
+    (sum, y) => sum + y.currentOccupancy,
+    0,
+  );
+
+  const yardOccupancy =
+    totalCapacity > 0
+      ? (totalOccupancy / totalCapacity) * 100
+      : 0;
 
   return {
     activeTrains: activeTrains.length,
@@ -81,6 +96,7 @@ export function globalSearch(
 
   for (const loco of locomotives) {
     const display = formatLocomotiveDisplay(loco);
+
     if (
       display.toLowerCase().includes(q) ||
       loco.roadNumber.includes(q) ||
@@ -100,7 +116,6 @@ export function globalSearch(
     if (!feature.name.toLowerCase().includes(q)) continue;
 
     let type: SearchResult['type'] = 'waypoint';
-    let path = '/map';
 
     switch (feature.type) {
       case 'yards':
@@ -112,16 +127,16 @@ export function globalSearch(
       case 'stations':
         type = 'station';
         break;
-      default:
-        type = 'waypoint';
     }
 
     results.push({
       id: feature.id,
       type,
       title: feature.name,
-      subtitle: feature.type.charAt(0).toUpperCase() + feature.type.slice(1),
-      path,
+      subtitle:
+        feature.type.charAt(0).toUpperCase() +
+        feature.type.slice(1),
+      path: '/map',
     });
   }
 
@@ -132,13 +147,29 @@ export function getUpcomingDepartures(
   trains: Train[],
   schedules: Schedule[],
   limit = 5,
-): { symbol: string; origin: string; destination: string; departureTime: string; trainType: string }[] {
+): {
+  symbol: string;
+  origin: string;
+  destination: string;
+  departureTime: string;
+  trainType: string;
+}[] {
   const now = new Date();
-  const upcoming: { symbol: string; origin: string; destination: string; departureTime: string; trainType: string; sortTime: number }[] = [];
+
+  const upcoming: {
+    symbol: string;
+    origin: string;
+    destination: string;
+    departureTime: string;
+    trainType: string;
+    sortTime: number;
+  }[] = [];
 
   for (const train of trains) {
     if (train.status !== 'Scheduled') continue;
+
     const dep = new Date(train.departureTime);
+
     if (dep > now) {
       upcoming.push({
         symbol: train.symbol,
@@ -153,9 +184,14 @@ export function getUpcomingDepartures(
 
   for (const schedule of schedules) {
     if (!schedule.enabled) continue;
-    const [h, m] = schedule.departureTime.split(':').map(Number);
+
+    const [h, m] = schedule.departureTime
+      .split(':')
+      .map(Number);
+
     const dep = new Date();
     dep.setHours(h ?? 0, m ?? 0, 0, 0);
+
     if (dep > now) {
       upcoming.push({
         symbol: schedule.symbol,
