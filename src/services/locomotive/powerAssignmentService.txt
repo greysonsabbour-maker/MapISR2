@@ -1,0 +1,48 @@
+import type { Train, Locomotive } from "@/types";
+import { choosePower } from "./powerPoolService";
+
+export interface AssignmentResult {
+  success: boolean;
+  locomotiveIds: string[];
+  message: string;
+}
+
+export function assignPowerToTrain(
+  train: Train,
+  locomotives: Locomotive[],
+): AssignmentResult {
+  const power = choosePower({
+    train,
+    availableLocomotives: locomotives,
+
+    // Default requirements for now.
+    // We'll make these configurable from the admin panel later.
+    minimumHorsepower: 6000,
+    minimumAxles: 12,
+
+    allowForeignPower: true,
+  });
+
+  if (!power) {
+    return {
+      success: false,
+      locomotiveIds: [],
+      message: `No available power at ${train.origin}`,
+    };
+  }
+
+  return {
+    success: true,
+    locomotiveIds: power.locomotives.map((l) => l.id),
+    message: `${power.locomotives.length} locomotive(s) assigned (${power.totalHorsepower} HP)`,
+  };
+}
+
+export function hasEnoughPower(
+  train: Train,
+  locomotives: Locomotive[],
+): boolean {
+  return (
+    assignPowerToTrain(train, locomotives).success
+  );
+}
