@@ -44,22 +44,24 @@ export interface SearchResult {
   path?: string;
 }
 
+export const DEFAULT_LAYER_VISIBILITY: MapLayerVisibility = {
+  mainline: true,
+  sidings: true,
+  yards: true,
+  industries: true,
+  crossovers: true,
+  stations: true,
+  waypoints: false,
+  junctions: true,
+  trains: true,
+};
+
 export const DEFAULT_SETTINGS: AppSettings = {
   railroadName: 'Ironstate Railroad',
   timezone: 'America/New_York',
   defaultMaxSpeed: 40,
   schedulerEnabled: true,
-  mapLayerVisibility: {
-    mainline: true,
-    sidings: true,
-    yards: true,
-    industries: true,
-    crossovers: true,
-    stations: true,
-    waypoints: false,
-    junctions: true,
-    trains: true,
-  },
+  mapLayerVisibility: { ...DEFAULT_LAYER_VISIBILITY },
   kmzFileName: 'railroad.kmz',
   logoFileName: 'logo-full.png',
 };
