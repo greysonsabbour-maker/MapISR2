@@ -6,7 +6,10 @@ import type {
   MapLayerVisibility,
   AppSettings,
 } from '@/types';
-import { DEFAULT_LAYER_VISIBILITY, DEFAULT_SETTINGS } from '@/types/app';
+import {
+  DEFAULT_LAYER_VISIBILITY,
+  DEFAULT_SETTINGS,
+} from '@/types/app';
 import { STORAGE_KEYS, KMZ_PATH } from '@/config/constants';
 import { parseKmzFile, extractLocations } from '@/services/map/kmzParser';
 
@@ -28,19 +31,26 @@ interface MapState {
   setAllLayers: (visibility: MapLayerVisibility) => void;
 }
 
-export const useMapStore = create<MapState>()((set, get) => ({
+export const useMapStore = create<MapState>()((set) => ({
   features: [],
   bounds: undefined,
   layerVisibility: { ...DEFAULT_LAYER_VISIBILITY },
   isLoading: false,
   error: null,
-  locations: { yards: [], stations: [], industries: [], all: [] },
+  locations: {
+    yards: [],
+    stations: [],
+    industries: [],
+    all: [],
+  },
 
   loadKmz: async (path = KMZ_PATH) => {
     set({ isLoading: true, error: null });
+
     try {
       const collection = await parseKmzFile(path);
       const locations = extractLocations(collection.features);
+
       set({
         features: collection.features,
         bounds: collection.bounds,
@@ -55,24 +65,26 @@ export const useMapStore = create<MapState>()((set, get) => ({
     }
   },
 
-  setLayerVisibility: (layer, visible) => {
+  setLayerVisibility: (layer, visible) =>
     set((state) => ({
-      layerVisibility: { ...state.layerVisibility, [layer]: visible },
-    }));
-  },
+      layerVisibility: {
+        ...state.layerVisibility,
+        [layer]: visible,
+      },
+    })),
 
-  toggleLayer: (layer) => {
+  toggleLayer: (layer) =>
     set((state) => ({
       layerVisibility: {
         ...state.layerVisibility,
         [layer]: !state.layerVisibility[layer],
       },
-    }));
-  },
+    })),
 
-  setAllLayers: (visibility) => {
-    set({ layerVisibility: visibility });
-  },
+  setAllLayers: (visibility) =>
+    set({
+      layerVisibility: visibility,
+    }),
 }));
 
 interface SettingsState {
@@ -86,17 +98,22 @@ export const useSettingsStore = create<SettingsState>()(
     (set) => ({
       settings: { ...DEFAULT_SETTINGS },
 
-      updateSettings: (partial) => {
+      updateSettings: (partial) =>
         set((state) => ({
-          settings: { ...state.settings, ...partial },
-        }));
-      },
+          settings: {
+            ...state.settings,
+            ...partial,
+          },
+        })),
 
-      resetSettings: () => {
-        set({ settings: { ...DEFAULT_SETTINGS } });
-      },
+      resetSettings: () =>
+        set({
+          settings: { ...DEFAULT_SETTINGS },
+        }),
     }),
-    { name: STORAGE_KEYS.settings },
+    {
+      name: STORAGE_KEYS.settings,
+    },
   ),
 );
 
@@ -130,14 +147,17 @@ export const useSchedulerStore = create<SchedulerState>()((set) => ({
   setLastTick: (lastTick) => set({ lastTick }),
 }));
 
-interface TimelineStoreState {
+interface TimelineState {
   refreshKey: number;
   triggerRefresh: () => void;
 }
 
-export const useTimelineStore = create<TimelineStoreState>()((set) => ({
+export const useTimelineStore = create<TimelineState>()((set) => ({
   refreshKey: 0,
-  triggerRefresh: () => set((s) => ({ refreshKey: s.refreshKey + 1 })),
+  triggerRefresh: () =>
+    set((state) => ({
+      refreshKey: state.refreshKey + 1,
+    })),
 }));
 
 export { DEFAULT_LAYER_VISIBILITY };
