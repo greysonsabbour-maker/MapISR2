@@ -48,4 +48,12 @@ export type {
   SearchResultType,
 } from './app';
 
-export type { UserRole, AuthUser } from '../config/auth';
+export {
+  DEFAULT_LAYER_VISIBILITY,
+  DEFAULT_SETTINGS,
+} from './app';
+
+export type {
+  UserRole,
+  AuthUser,
+} from '../config/auth';
